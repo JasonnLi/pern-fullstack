@@ -5,14 +5,14 @@ RUN mkdir /usr/src/app
 WORKDIR /usr/src/app
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
 
-# # Install Yarn
-# RUN apt-get update && apt-get install -y apt-transport-https ca-certificates
-# RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-# RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-# RUN apt update && apt install -y yarn
+# Install Yarn
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt update && apt install -y yarn
 
-# # Install TypeScript & Webpack
-# RUN npm install typescript@3.8.3 webpack@4.42.0 webpack-cli@3.3.11  -g
+# Install TypeScript & Webpack
+RUN npm install typescript@3.8.3 webpack@4.42.0 webpack-cli@3.3.11  -g
 
 
 
@@ -31,7 +31,7 @@ COPY webpack webpack
 COPY index.html .
 COPY src src
 
-# COPY . /usr/src/app
+COPY . /usr/src/app
 
 # Build
 # ARG NODE_ENV
@@ -46,10 +46,11 @@ FROM nginx:alpine
 
 # COPY conf/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Get app dist and copy to nginx server directory
-#COPY --from=build /srv/dist /app
+# Get app dist and copy to nginx server directory (This is the default directory where Nginx serves from)
+# COPY --from=build /srv/dist /app
 COPY --from=build /usr/src/app/build /usr/share/nginx/html
 
+# Remove the default Nginx configuration file present at "/etc/nginx/conf.d/default.conf"
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx/nginx.conf /etc/nginx/conf.d
 
